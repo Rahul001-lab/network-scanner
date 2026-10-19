@@ -1,0 +1,160 @@
+# NetScout 🔎
+
+**A Python-based network scanner for host discovery, TCP port scanning, and basic service identification.**
+
+NetScout is a modular network reconnaissance project developed to explore Python socket programming, network discovery, port scanning, and service banner collection.
+
+## 🚀 Features
+
+- **Host Discovery** — Check whether hosts respond on a selected TCP port.
+- **TCP Port Scanning** — Identify open TCP ports on a target.
+- **Concurrent Scanning** — Scan multiple ports simultaneously using Python's thread pool.
+- **IP & Network Validation** — Validate IPv4 addresses and CIDR network ranges.
+- **Service Identification** — Associate common port numbers with likely services.
+- **Banner Grabbing** — Attempt to collect responses from accessible TCP services.
+- **JSON Reporting** — Export scan results to structured JSON files.
+- **CLI Interface** — Run scans directly from the terminal.
+- **Modular Architecture** — Keep scanning, validation, and reporting functionality in separate modules.
+
+## 🛠️ Technologies
+
+- Python 3
+- Socket Programming
+- TCP/IP Networking
+- `ipaddress`
+- `argparse`
+- `concurrent.futures`
+- JSON
+
+## 📁 Project Structure
+
+```text
+Network-scanner/
+├── main.py
+├── README.md
+├── requirements.txt
+├── .gitignore
+│
+├── scanner/
+│   ├── __init__.py
+│   ├── discovery.py
+│   ├── ports.py
+│   ├── services.py
+│   ├── dns.py
+│   └── fingerprint.py
+│
+├── utils/
+│   ├── __init__.py
+│   ├── validators.py
+│   ├── logger.py
+│   └── output.py
+│
+├── reports/
+└── tests/
+```
+
+*Some modules in the structure are planned and may not yet be implemented.*
+
+## ⚙️ Requirements
+
+- Python 3.10 or later recommended
+- Windows, Linux, or macOS
+- Permission to test the target system or network
+
+NetScout currently uses Python's standard library for its implemented core functionality, so no third-party packages are required.
+
+## 📥 Installation
+
+Clone the repository:
+
+```bash
+git clone https://github.com/Rahu1001-lab/network-scanner.git
+```
+
+Navigate into the project directory:
+
+```bash
+cd network-scanner
+```
+
+## 💻 Usage
+
+### Scan a single host
+
+```bash
+python main.py 127.0.0.1 --ports 8000
+```
+
+### Scan selected TCP ports
+
+```bash
+python main.py 127.0.0.1 --ports 22,80,443,8000
+```
+
+### Scan a port range
+
+```bash
+python main.py 127.0.0.1 --ports 1-100
+```
+
+Use only targets you own or have explicit permission to test.
+
+## 🧪 Local Testing
+
+Start a local HTTP server in one terminal:
+
+```bash
+python -m http.server 8000 --bind 127.0.0.1
+```
+
+Run NetScout in another terminal:
+
+```bash
+python main.py 127.0.0.1 --ports 8000
+```
+
+Port `8000` should be detected as open, and the scanner should attempt to collect an HTTP response banner.
+
+## 📊 Reports
+
+NetScout can save scan results as JSON files in the `reports/` directory.
+
+Reports may include:
+
+- Target IP address
+- Scan timestamp
+- Open TCP ports
+- Likely service names
+- Collected service banners
+
+Actual report contents depend on the modules and integration currently implemented.
+
+## 🔐 Legal & Ethical Use
+
+NetScout is intended for educational purposes, authorized network administration, and security testing.
+
+- Scan only systems and networks you own or have explicit permission to test.
+- Follow applicable laws and organizational policies.
+- Avoid scanning systems without authorization.
+
+## 📚 Learning Objectives
+
+This project provides practical experience with:
+
+- Python networking and sockets
+- TCP connections and port states
+- IP addressing and CIDR notation
+- Concurrent programming
+- Service identification
+- CLI application development
+- JSON serialization and security reporting
+
+## 📜 License
+
+No license has been specified yet. Add a license before distributing the project for reuse.
+
+---
+
+**Project Status:** In Development
+
+Built as a hands-on Python and cybersecurity learning project.
