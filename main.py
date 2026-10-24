@@ -6,7 +6,7 @@ import sys
 from scanner.discovery import discover_hosts
 from scanner.ports import scan_ports
 from utils.validators import validate_ip, validate_network
-
+from scanner.services import detect_service
 
 def parse_ports(value):
     """Parse comma-separated ports and ranges."""
@@ -95,18 +95,24 @@ def main():
         )
 
         if not responsive:
-            print("[-] No response on the discovery port.")
-            print("[*] Skipping this host in this basic version.")
-            continue
+             print("[-] No response on the discovery port.")
+             print("[*] Continuing with the requested port scan anyway.")
 
         print(f"[*] Scanning {len(args.ports)} TCP ports...")
 
         open_ports = scan_ports(host, args.ports)
+        for port in open_ports:
+             details = detect_service(host, port)
 
-        print(f"[*] Open ports on {host}: {open_ports}")
+             print(f"\nHost:    {details['ip']}")
+             print(f"Port:    {details['port']}")
+             print(f"Service: {details['service']}")
+             print(f"Banner:  {details['banner']}")
+             print(f"[*] Open ports on {host}: {open_ports}")
 
     print("\n[+] NetScout scan completed.")
 
 
 if __name__ == "__main__":
     main()
+
