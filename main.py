@@ -7,6 +7,7 @@ from scanner.discovery import discover_hosts
 from scanner.ports import scan_ports
 from utils.validators import validate_ip, validate_network
 from scanner.services import detect_service
+from utils.output import save_json_report
 
 def parse_ports(value):
     """Parse comma-separated ports and ranges."""
