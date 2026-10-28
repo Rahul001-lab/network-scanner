@@ -1,119 +1,129 @@
 
 import argparse
-import ipaddress
-import sys
 
 from scanner.discovery import discover_hosts
 from scanner.ports import scan_ports
-from utils.validators import validate_ip, validate_network
 from scanner.services import detect_service
+from utils.validators import validate_ip, validate_network
 from utils.output import save_json_report
-
-def parse_ports(value):
-    """Parse comma-separated ports and ranges."""
-    ports = set()
-
-    try:
-        for part in value.split(","):
-            part = part.strip()
-
-            if "-" in part:
-                start, end = map(int, part.split("-", 1))
-
-                if start < 1 or end > 65535 or start > end:
-                    raise ValueError
-
-                ports.update(range(start, end + 1))
-            else:
-                port = int(part)
-
-                if not 1 <= port <= 65535:
-                    raise ValueError
-
-                ports.add(port)
-
-    except ValueError:
-        raise argparse.ArgumentTypeError(
-            "Use valid ports, e.g. 22,80,443 or 1-100"
-        )
-
-    if len(ports) > 1000:
-        raise argparse.ArgumentTypeError("Maximum 1000 ports per scan")
-
-    return sorted(ports)
 
 
 def main():
-    parser = argparse.ArgumentParser(
-        description="NetScout - Python Network Scanner"
-    )
+    parser = argparse.ArgumentParser(description="NetScout - Network Scanner")
 
-    parser.add_argument(
-        "target",
-        help="Target IPv4 address or CIDR network"
-    )
-
+    parser.add_argument("target", help="Target IP or network CIDR")
     parser.add_argument(
         "--ports",
-        type=parse_ports,
-        default=[22, 80, 443, 8000, 8080],
-        help="Ports, e.g. 22,80,443 or 1-100"
+        default="22,80,443,8000,8080",
+        help="Ports to scan, e.g. 22,80,443"
     )
 
     args = parser.parse_args()
     target = args.target
 
-    print("=" * 45)
-    print("             NetScout")
-    print("         Network Scanner")
-    print("=" * 45)
+    if not validate_ip(target) and not validate_network(target):
+        print("[-] Invalid IP address or network")
+        return
+
+    ports = []
+
+    try:
+        for part in args.ports.split(","):
+            part = part.strip()
+
+            if "-" in part:
+                start, end = map(int, part.split("-", 1))
+                if not 1 <= start <= end <= 65535:
+                    raise ValueError
+                ports.extend(range(start, end + 1))
+            else:
+                port = int(part)
+                if not 1 <= port <= 65535:
+                    raise ValueError
+                ports.append(port)
+
+        ports = sorted(set(ports))
+
+    except ValueError:
+        print("[-] Invalid port list")
+        return
+
+    if not ports:
+        print("[-] No ports specified")
+        return
+
+    print("\n=== NetScout ===")
+    print(f"Target: {target}")
+    print(f"Ports: {ports}")
+
+    # Build target list
+    import ipaddress
 
     if validate_ip(target):
         targets = [target]
-    elif validate_network(target):
+    else:
         network = ipaddress.ip_network(target, strict=False)
 
         if network.version != 4:
-            sys.exit("Currently, only IPv4 is supported.")
+            print("[-] Only IPv4 is supported")
+            return
 
         if network.num_addresses > 256:
-            sys.exit("For now, use a network with at most 256 addresses.")
+            print("[-] Maximum supported network size is 256 addresses")
+            return
 
-        targets = [str(ip) for ip in network.hosts()]
-
-        if network.num_addresses == 1:
-            targets = [str(network.network_address)]
-    else:
-        sys.exit("Invalid IP address or network range.")
-
-    for host in targets:
-        print(f"\n[*] Checking host: {host}")
-
-        responsive = discover_hosts(
-            f"{host}/32",
-            port=args.ports[0],
-            timeout=1
+        targets = (
+            [str(ip) for ip in network]
+            if network.prefixlen >= 31
+            else [str(ip) for ip in network.hosts()]
         )
 
-        if not responsive:
-             print("[-] No response on the discovery port.")
-             print("[*] Continuing with the requested port scan anyway.")
+    all_results = []
 
-        print(f"[*] Scanning {len(args.ports)} TCP ports...")
+    for host in targets:
+        print(f"\n[*] Scanning {host}")
 
-        open_ports = scan_ports(host, args.ports)
+        # Host discovery
+        try:
+            alive = discover_hosts(
+                f"{host}/32",
+                port=ports[0]
+            )
+
+            if alive:
+                print(f"[+] Host responded: {host}")
+            else:
+                print("[*] No response on discovery port; checking ports anyway")
+
+        except (OSError, ValueError) as error:
+            print(f"[!] Discovery error: {error}")
+
+        # Port scanning
+        open_ports = scan_ports(host, ports)
+        services = []
+
+        # Service detection
         for port in open_ports:
-             details = detect_service(host, port)
+            details = detect_service(host, port)
+            services.append(details)
 
-             print(f"\nHost:    {details['ip']}")
-             print(f"Port:    {details['port']}")
-             print(f"Service: {details['service']}")
-             print(f"Banner:  {details['banner']}")
-             print(f"[*] Open ports on {host}: {open_ports}")
+            print(f"[+] {host}:{port} - {details['service']}")
 
-    print("\n[+] NetScout scan completed.")
+        all_results.append({
+            "ip": host,
+            "open_ports": open_ports,
+            "services": services
+        })
+
+    # JSON report
+    try:
+        report_path = save_json_report(target, all_results)
+        print(f"\n[+] Report saved: {report_path}")
+    except (OSError, ValueError) as error:
+        print(f"[!] Report error: {error}")
+
+    print("\n[+] NetScout scan completed")
 
 
 if __name__ == "__main__":
     main()
-

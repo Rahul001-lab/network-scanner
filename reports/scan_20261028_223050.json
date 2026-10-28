@@ -1,0 +1,21 @@
+{
+    "tool": "NetScout",
+    "target": "127.0.0.1",
+    "scan_time_utc": "2026-10-28T17:00:50.828747+00:00",
+    "results": [
+        {
+            "ip": "127.0.0.1",
+            "open_ports": [
+                8000
+            ],
+            "services": [
+                {
+                    "ip": "127.0.0.1",
+                    "port": 8000,
+                    "service": "HTTP-alt",
+                    "banner": "HTTP/1.0 200 OK\r\nServer: SimpleHTTP/0.6 Python/3.14.4\r\nDate: Wed, 28 Oct 2026 17:00:50 GMT\r\nContent-type: text/html; charset=utf-8\r\nContent-Length: 547"
+                }
+            ]
+        }
+    ]
+}
