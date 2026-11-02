@@ -1,35 +1,44 @@
-# NetScout 🔎
+# 🔎 NetScout — Python Network Scanner
 
-**A Python-based network scanner for host discovery, TCP port scanning, and basic service identification.**
+**A modular Python-based network reconnaissance tool for host discovery, TCP port scanning, service identification, and network information gathering.**
 
-NetScout is a modular network reconnaissance project developed to explore Python socket programming, network discovery, port scanning, and service banner collection.
+NetScout is a cybersecurity project designed to simplify basic network reconnaissance through Python socket programming and networking techniques. It provides a command-line interface for discovering responsive hosts, identifying open TCP ports, collecting service banners, and generating scan reports.
 
 ## 🚀 Features
 
-- **Host Discovery** — Check whether hosts respond on a selected TCP port.
-- **TCP Port Scanning** — Identify open TCP ports on a target.
-- **Concurrent Scanning** — Scan multiple ports simultaneously using Python's thread pool.
-- **IP & Network Validation** — Validate IPv4 addresses and CIDR network ranges.
-- **Service Identification** — Associate common port numbers with likely services.
-- **Banner Grabbing** — Attempt to collect responses from accessible TCP services.
-- **JSON Reporting** — Export scan results to structured JSON files.
-- **CLI Interface** — Run scans directly from the terminal.
-- **Modular Architecture** — Keep scanning, validation, and reporting functionality in separate modules.
+- 🌐 **Host Discovery** — Identify hosts responding to TCP connection probes.
+- 🔌 **TCP Port Scanning** — Detect open TCP ports on target systems.
+- ⚡ **Concurrent Scanning** — Use multithreading to perform port checks efficiently.
+- 🛡️ **Input Validation** — Validate IP addresses, CIDR ranges, and port numbers.
+- 🔍 **Service Identification** — Associate common port numbers with likely services.
+- 📡 **Banner Grabbing** — Collect available responses from network services.
+- 🌍 **DNS Lookup** — Resolve domain names into IP addresses.
+- 🔄 **Reverse DNS Lookup** — Retrieve hostnames associated with IP addresses.
+- 💻 **MAC Address Detection** — Extract IP and MAC address pairs from the local ARP table.
+- 🏷️ **Vendor Identification** — Identify manufacturers using MAC address OUI prefixes.
+- 📊 **JSON Reporting** — Export scan results into structured JSON reports.
+- 📟 **Command-Line Interface** — Execute scans directly from the terminal.
+- 🧩 **Modular Architecture** — Separate functionality into reusable Python modules.
 
-## 🛠️ Technologies
+## 🛠️ Technologies Used
 
-- Python 3
-- Socket Programming
-- TCP/IP Networking
-- `ipaddress`
-- `argparse`
-- `concurrent.futures`
-- JSON
+| Technology | Purpose |
+|---|---|
+| Python 3 | Core programming language |
+| Socket | TCP connections and network communication |
+| ipaddress | IP and CIDR validation |
+| argparse | Command-line argument handling |
+| concurrent.futures | Concurrent port scanning |
+| subprocess | Operating system ARP commands |
+| re | MAC address extraction |
+| JSON | Structured scan reports |
+| CSV | Scan report export, if enabled in the current version |
 
 ## 📁 Project Structure
 
 ```text
 Network-scanner/
+│
 ├── main.py
 ├── README.md
 ├── requirements.txt
@@ -41,6 +50,7 @@ Network-scanner/
 │   ├── ports.py
 │   ├── services.py
 │   ├── dns.py
+│   ├── mac_vendor.py
 │   └── fingerprint.py
 │
 ├── utils/
@@ -50,18 +60,20 @@ Network-scanner/
 │   └── output.py
 │
 ├── reports/
+│
 └── tests/
 ```
 
-*Some modules in the structure are planned and may not yet be implemented.*
+*The structure may contain modules that are still under development.*
 
 ## ⚙️ Requirements
 
-- Python 3.10 or later recommended
+- Python 3.10+
 - Windows, Linux, or macOS
-- Permission to test the target system or network
+- Network connectivity for DNS and network scanning
+- Permission to scan the target systems
 
-NetScout currently uses Python's standard library for its implemented core functionality, so no third-party packages are required.
+NetScout primarily uses Python's standard library. No third-party dependencies are required for the currently implemented core modules.
 
 ## 📥 Installation
 
@@ -97,64 +109,102 @@ python main.py 127.0.0.1 --ports 22,80,443,8000
 python main.py 127.0.0.1 --ports 1-100
 ```
 
-Use only targets you own or have explicit permission to test.
+### Run individual modules
+
+Host discovery:
+
+```bash
+python scanner/discovery.py
+```
+
+Port scanning:
+
+```bash
+python scanner/ports.py
+```
+
+Service detection:
+
+```bash
+python scanner/services.py
+```
+
+DNS lookup:
+
+```bash
+python scanner/dns.py
+```
+
+MAC address detection:
+
+```bash
+python scanner/mac_vendor.py
+```
 
 ## 🧪 Local Testing
 
-Start a local HTTP server in one terminal:
+Start a local HTTP server:
 
 ```bash
 python -m http.server 8000 --bind 127.0.0.1
 ```
 
-Run NetScout in another terminal:
+In another terminal, execute:
 
 ```bash
 python main.py 127.0.0.1 --ports 8000
 ```
 
-Port `8000` should be detected as open, and the scanner should attempt to collect an HTTP response banner.
+NetScout should detect the open port and attempt to retrieve its HTTP response banner.
 
-## 📊 Reports
+## 📊 Reporting
 
-NetScout can save scan results as JSON files in the `reports/` directory.
+NetScout supports structured scan reporting.
 
-Reports may include:
+Reports can contain:
 
-- Target IP address
-- Scan timestamp
+- Target IP addresses
+- Scan timestamps
 - Open TCP ports
-- Likely service names
-- Collected service banners
+- Identified services
+- Collected banners
+- DNS information, when integrated into the report
 
-Actual report contents depend on the modules and integration currently implemented.
+Generated reports are stored in the `reports/` directory.
 
-## 🔐 Legal & Ethical Use
-
-NetScout is intended for educational purposes, authorized network administration, and security testing.
-
-- Scan only systems and networks you own or have explicit permission to test.
-- Follow applicable laws and organizational policies.
-- Avoid scanning systems without authorization.
-
-## 📚 Learning Objectives
+## 🧠 Network Concepts Covered
 
 This project provides practical experience with:
 
-- Python networking and sockets
+- TCP/IP networking
+- IP addressing and subnetting
+- CIDR notation
 - TCP connections and port states
-- IP addressing and CIDR notation
-- Concurrent programming
+- Host discovery
+- DNS and reverse DNS
+- Address Resolution Protocol (ARP)
+- MAC addresses and OUI identification
+- Socket programming
+- Concurrent execution
+- Network reconnaissance
 - Service identification
-- CLI application development
-- JSON serialization and security reporting
+- JSON serialization
+
+## 🔐 Legal & Ethical Use
+
+NetScout is developed for educational purposes, authorized network administration, and cybersecurity testing.
+
+- Only scan systems and networks you own or have explicit permission to test.
+- Do not perform unauthorized network reconnaissance.
+- Follow applicable laws and organizational security policies.
+
+The developer is not responsible for unauthorized or improper use of this software.
 
 ## 📜 License
 
-No license has been specified yet. Add a license before distributing the project for reuse.
+No license has been specified yet. Add an appropriate license before permitting others to reuse or distribute the project.
 
 ---
 
-**Project Status:** In Development
+**NetScout | Built with Python | Cybersecurity & Network Reconnaissance**
 
-Built as a hands-on Python and cybersecurity learning project.
