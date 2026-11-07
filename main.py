@@ -6,7 +6,7 @@ from scanner.ports import scan_ports
 from scanner.services import detect_service
 from utils.validators import validate_ip, validate_network
 from utils.output import save_json_report
-
+from scanner.fingerprint import fingerprint_os
 
 def main():
     parser = argparse.ArgumentParser(description="NetScout - Network Scanner")
@@ -92,6 +92,11 @@ def main():
 
             if alive:
                 print(f"[+] Host responded: {host}")
+                os_info = fingerprint_os(host)
+
+                print(f"[+] TTL: {os_info['ttl']}")
+                print(f"[+] OS Guess: {os_info['os_guess']}")
+           
             else:
                 print("[*] No response on discovery port; checking ports anyway")
 
@@ -123,7 +128,8 @@ def main():
         print(f"[!] Report error: {error}")
 
     print("\n[+] NetScout scan completed")
-
+    "os_guess": os_info["os_guess"],
+    "ttl": os_info["ttl"],
 
 if __name__ == "__main__":
     main()
